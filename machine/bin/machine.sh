@@ -14,9 +14,14 @@ case $COMMAND in
     echo "🏗️ Factory: Building project from directives.md..."
     # Trigger the architect and engineer
     ;;
+  "prime")
+    echo "📚 Librarian: Priming machine context..."
+    node /home/kareltestspecial/new-agent/machine/bin/librarian-gate.js
+    ;;
   "distill")
-    echo "📚 Librarian: Distilling knowledge from logs..."
-    # Trigger the librarian
+    echo "📚 Librarian: Distilling knowledge with Triage..."
+    # Usage: machine distill "Title" "Content"
+    node /home/kareltestspecial/new-agent/machine/bin/triage-logic.js "$2" "$3"
     ;;
   "critique")
     echo "🛡️ Integrity Critic: Auditing function..."
@@ -44,7 +49,7 @@ case $COMMAND in
     echo "💎 All Critics Approved. Build is Premium, Useful, Stable, Client-Ready & Brand-Safe."
     ;;
   *)
-    echo "Usage: ./machine.sh {scan|build|distill|critique|clean}"
+    echo "Usage: ./machine.sh {prime|scan|build|distill|critique|clean}"
     exit 1
     ;;
 esac
