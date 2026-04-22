@@ -12,12 +12,12 @@ sudo apt autoremove --purge -y
 sudo apt clean
 echo "✅ Disk space optimized."
 
-# 2. Librarian Sync
-echo "📚 Syncing lessons learned..."
-# Update the main lessons-learned.md (already handled by Antigravity in this turn)
-# In a real workflow, this script could append the latest project logs.
+# 2. Librarian Sync & Audit
+echo "📚 Syncing & Auditing lessons learned..."
+node /home/kareltestspecial/new-agent/machine/bin/critic-librarian.js
+[ $? -ne 0 ] && echo "⚠️ Knowledge audit failed. Please refine lessons-learned.md" && exit 1
 cat lessons-learned.md | head -n 20
-echo "✅ Knowledge base updated."
+echo "✅ Knowledge base updated and verified."
 
 # 3. Memory Consolidation
 echo "🧠 Refreshing Skill: remember-lessons..."
