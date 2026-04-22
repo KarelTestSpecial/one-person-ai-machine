@@ -17,7 +17,9 @@ async function audit() {
   // Use the browser_subagent via a command-line-like trigger or 
   // since I am a script, I will output a specific token for Antigravity to handle.
   
-  const port = process.argv[2] || '5173';
+  const PROJECT_PATH = process.argv[2] || process.cwd();
+  // Default port check for now, can be expanded to read vite.config.js
+  const port = '5175'; 
   const url = `http://localhost:${port}`;
   
   console.log(`[ACTION] BROWSER_CHECK: ${url}`);

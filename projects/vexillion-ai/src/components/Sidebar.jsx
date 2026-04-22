@@ -6,15 +6,17 @@ import {
   FileText, 
   Settings, 
   LogOut,
-  Zap
+  Zap,
+  Image as ImageIcon
 } from 'lucide-react';
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'auditor', label: 'Content Manager', icon: FileText },
+    { id: 'media', label: 'Media Library', icon: ImageIcon },
     { id: 'predictor', label: 'AI Predictor', icon: Cpu },
     { id: 'traffic', label: 'Traffic Feed', icon: Activity },
-    { id: 'auditor', label: 'Quality Auditor', icon: FileText },
   ];
 
   return (
@@ -44,11 +46,21 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
       </nav>
 
       <div className="p-4 border-t border-white/5 space-y-2">
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all">
+        <button 
+          onClick={() => setActiveTab('settings')}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+            activeTab === 'settings' 
+              ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' 
+              : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+          }`}
+        >
           <Settings size={20} />
-          <span className="font-medium">Settings</span>
+          <span className="font-medium">Site Settings</span>
         </button>
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/5 transition-all">
+        <button 
+          onClick={() => alert('Vexillion Session: Terminated.')}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/5 transition-all"
+        >
           <LogOut size={20} />
           <span className="font-medium">Logout</span>
         </button>

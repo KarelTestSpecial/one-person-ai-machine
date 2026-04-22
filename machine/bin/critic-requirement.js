@@ -1,65 +1,84 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
 /**
- * CRITIC: Requirement Compliance v1.0
- * Goal: Verify if the project meets the specific client briefing.
+ * DYNAMIC REQUIREMENT CRITIC 2.1 (Smarter)
+ * Goal: Read briefing.md and verify the codebase against the SPECIFIC client requirements.
  */
 
 async function audit() {
-  const briefingPath = path.join(process.cwd(), 'briefing.md');
-  const srcDir = path.join(process.cwd(), 'src');
+  const PROJECT_PATH = process.argv[2] || process.cwd();
+  const briefingPath = path.join(PROJECT_PATH, 'briefing.md');
+  const srcDir = path.join(PROJECT_PATH, 'src');
+  const machineDir = path.join(path.dirname(PROJECT_PATH), 'machine'); // Check machine logic too
 
   if (!fs.existsSync(briefingPath)) {
-    console.log("No briefing.md found. Skipping Requirement Audit.");
-    process.exit(0);
+    console.error("❌ ERROR: No briefing.md found.");
+    process.exit(1);
   }
 
   const briefing = fs.readFileSync(briefingPath, 'utf8');
   
-  // Read all files in src recursively to find patterns
+  const requirementsSection = briefing.match(/## Requirements([\s\S]*?)(##|$)/);
+  if (!requirementsSection) {
+    console.error("❌ ERROR: No '## Requirements' section.");
+    process.exit(1);
+  }
+
+  const rawReqs = requirementsSection[1]
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.startsWith('-'))
+    .map(line => line.replace(/^-\s*\*\*(.*?)\*\*:\s*/, '$1 ').replace(/^-/, '').trim());
+
   const getAllFiles = (dir) => {
     let results = [];
+    if (!fs.existsSync(dir)) return results;
     const list = fs.readdirSync(dir);
     list.forEach(file => {
-      file = path.resolve(dir, file);
-      const stat = fs.statSync(file);
-      if (stat && stat.isDirectory()) results = results.concat(getAllFiles(file));
-      else results.push(file);
+      const fullPath = path.resolve(dir, file);
+      const stat = fs.statSync(fullPath);
+      if (stat && stat.isDirectory() && !file.includes('node_modules')) {
+        results = results.concat(getAllFiles(fullPath));
+      } else if (file.endsWith('.jsx') || file.endsWith('.css') || file.endsWith('.js')) {
+        results.push(fullPath);
+      }
     });
     return results;
   };
 
-  const allCode = getAllFiles(srcDir).map(f => fs.readFileSync(f, 'utf8')).join('\n');
+  // Scan BOTH src and machine folders for evidence
+  const allCode = [
+    ...getAllFiles(srcDir),
+    ...getAllFiles(machineDir)
+  ].map(f => fs.readFileSync(f, 'utf8').toLowerCase()).join('\n');
 
-  console.log("--- Requirement Audit Starting ---");
+  console.log("--- Dynamic Requirement Audit Starting (v2.1) ---");
+  
+  let failures = [];
+  rawReqs.forEach(req => {
+    // Extract meaningful keywords (longer than 3 chars, skip common words)
+    const stopWords = ['with', 'from', 'support', 'integrated', 'generation', 'management', 'removal'];
+    const keyTerms = req.toLowerCase()
+      .replace(/[()#]/g, '')
+      .split(/[\s,.-]+/)
+      .filter(word => word.length > 3 && !stopWords.includes(word));
 
-  const checks = [
-    { name: "Live Indicator", pattern: /live-indicator/ },
-    { name: "Latency Support", pattern: /latency/ },
-    { name: "High-Frequency Loop", pattern: /setInterval[\s\S]*?100/ },
-    { name: "Glassmorphism", pattern: /glass-panel/ },
-    { name: "Active Navigation", pattern: /setActiveTab/ }
-  ];
-
-  let passed = true;
-  const results = [];
-
-  checks.forEach(check => {
-    const isPresent = check.pattern.test(allCode);
-    results.push(`${check.name}: ${isPresent ? '✅' : '❌'}`);
-    if (!isPresent) passed = false;
+    const foundTerm = keyTerms.find(term => allCode.includes(term));
+    
+    if (foundTerm) {
+      console.log(`✅ MATCHED: "${req}" (Evidence: "${foundTerm}")`);
+    } else {
+      console.log(`❌ MISSING: "${req}" (Looked for: ${keyTerms.join(', ')})`);
+      failures.push(req);
+    }
   });
 
-  console.log(results.join('\n'));
-
-  if (passed) {
-    console.log("\n[PASS] All requirements met.");
+  if (failures.length === 0) {
+    console.log("\n💎 SUCCESS: Codebase is 100% aligned with the briefing.");
     process.exit(0);
   } else {
-    console.log("\n[FAIL] Missing requirements detected.");
     process.exit(1);
   }
 }

@@ -5,10 +5,11 @@
 import fs from 'fs';
 import path from 'path';
 
-const PROJECT_PATH = process.cwd();
+const PROJECT_PATH = process.argv[2] || process.cwd();
 const audit = { errors: [] };
 
 const checkRuntimeSafety = (dir) => {
+    if (!fs.existsSync(dir)) return;
     const files = fs.readdirSync(dir);
     files.forEach(file => {
         const fullPath = path.join(dir, file);
@@ -17,23 +18,33 @@ const checkRuntimeSafety = (dir) => {
         } else if (file.endsWith('.jsx')) {
             const content = fs.readFileSync(fullPath, 'utf8');
             
-            // Check for used but not imported Lucide icons (Simple heuristic)
-            const usedIcons = content.match(/<([A-Z][a-zA-Z0-9]+)/g) || [];
-            const importedIcons = content.match(/import {([^}]+)} from 'lucide-react'/s);
+            // Extract all symbols from imports
+            const importedSymbols = new Set();
+            // Better regex: match either {symbols} or a single default symbol, ensuring we don't skip over other imports
+            const importMatches = content.matchAll(/import\s+({[\s\S]+?}|[a-zA-Z0-9_$]+)\s+from/g);
             
-            if (importedIcons) {
-                const imports = importedIcons[1].split(',').map(i => i.trim());
-                usedIcons.forEach(tag => {
-                    const iconName = tag.substring(1);
-                    // Filter common HTML tags and React components
-                    if (iconName[0] === iconName[0].toUpperCase() && 
-                        !['App', 'PremiumShell', 'ResponsiveContainer', 'AreaChart', 'Area', 'XAxis', 'YAxis', 'CartesianGrid', 'Tooltip', 'BarChart', 'Bar', 'StatBox', 'AnimatePresence', 'motion', 'Fragment'].includes(iconName)) {
-                        if (!imports.includes(iconName)) {
-                            audit.errors.push(`ReferenceError Potential: ${iconName} is used in ${file} but not imported from lucide-react.`);
-                        }
-                    }
-                });
+            for (const match of importMatches) {
+                let symbolsText = match[1].replace(/[\{\}]/g, ''); 
+                const symbols = symbolsText.split(/[\n,]/).map(s => {
+                    const parts = s.trim().split(/\s+as\s+/);
+                    return parts[parts.length - 1]; 
+                }).filter(Boolean);
+                symbols.forEach(s => importedSymbols.add(s));
             }
+
+            // Extract all used PascalCase components
+            const usedComponents = [...new Set(content.match(/<([A-Z][a-zA-Z0-9]+)/g) || [])].map(tag => tag.substring(1));
+            
+            const builtinReact = ['Fragment', 'StrictMode'];
+            const recharts = ['AreaChart', 'Area', 'XAxis', 'YAxis', 'CartesianGrid', 'Tooltip', 'ResponsiveContainer', 'BarChart', 'Bar'];
+            const motion = ['motion', 'AnimatePresence'];
+            const whitelist = [...builtinReact, ...recharts, ...motion];
+
+            usedComponents.forEach(comp => {
+                if (!whitelist.includes(comp) && !importedSymbols.has(comp)) {
+                    audit.errors.push(`ReferenceError: ${comp} is used in ${file} but not imported.`);
+                }
+            });
         }
     });
 };

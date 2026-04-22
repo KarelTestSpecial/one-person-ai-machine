@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const { execSync } = require('child_process');
+const path = require('path');
 
 /**
  * CRITIC: Legal & Branding Guardian v1.0
@@ -7,8 +8,9 @@ const { execSync } = require('child_process');
  */
 
 async function audit() {
-  const name = process.argv[2] || 'Unnamed Project';
-  const mode = process.argv[3] || 'INTERNAL'; // INTERNAL or FINAL
+  const PROJECT_PATH = process.argv[2] || process.cwd();
+  const mode = process.argv[3] || 'INTERNAL'; 
+  const name = path.basename(PROJECT_PATH);
   
   console.log(`⚖️ Legal Critic [MODE: ${mode}]: Auditing "${name}"...`);
 

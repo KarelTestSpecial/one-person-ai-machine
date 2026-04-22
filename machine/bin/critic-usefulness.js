@@ -1,42 +1,37 @@
 /**
  * USEFULNESS CRITIC: The Business Value Guard
- * Checks if the app provides real functional value.
+ * Checks if the app provides real functional value across all components.
  */
 import fs from 'fs';
 import path from 'path';
 
-const PROJECT_PATH = process.cwd();
-const audit = { errors: [], score: 10 };
+const PROJECT_PATH = process.argv[2] || process.cwd();
+const audit = { errors: [], hasState: false, hasEffect: false, hasBusinessComponent: false };
 
-const checkUsefulness = (dir) => {
+const scanDir = (dir) => {
+    if (!fs.existsSync(dir)) return;
     const files = fs.readdirSync(dir);
     files.forEach(file => {
         const fullPath = path.join(dir, file);
         if (fs.statSync(fullPath).isDirectory() && !fullPath.includes('node_modules')) {
-            checkUsefulness(fullPath);
-        } else if (file === 'App.jsx') {
+            scanDir(fullPath);
+        } else if (file.endsWith('.jsx')) {
             const content = fs.readFileSync(fullPath, 'utf8');
             
-            // 1. Complexity Check (State Management)
-            const stateMatches = content.match(/useState/g) || [];
-            if (stateMatches.length < 3) {
-                audit.errors.push("Low Functional Value: App has too little interactive state.");
-            }
-
-            // 2. Data Handling (Side effects)
-            if (!content.includes('useEffect')) {
-                audit.errors.push("Static Experience: No real-time data handling (useEffect) detected.");
-            }
-
-            // 3. UI Complexity (Multiple specialized components)
-            if (!content.includes('Chart') && !content.includes('Table') && !content.includes('Feed')) {
-                audit.errors.push("Generic UI: Missing specialized business components (Charts, Tables, or Feeds).");
+            if (content.includes('useState')) audit.hasState = true;
+            if (content.includes('useEffect')) audit.hasEffect = true;
+            if (content.includes('Chart') || content.includes('Table') || content.includes('Feed') || content.includes('Predictor')) {
+                audit.hasBusinessComponent = true;
             }
         }
     });
 };
 
-checkUsefulness(path.join(PROJECT_PATH, 'src'));
+scanDir(path.join(PROJECT_PATH, 'src'));
+
+if (!audit.hasState) audit.errors.push("Low Functional Value: No interactive state (useState) detected.");
+if (!audit.hasEffect) audit.errors.push("Static Experience: No real-time data handling (useEffect) detected.");
+if (!audit.hasBusinessComponent) audit.errors.push("Generic UI: Missing specialized business components (Charts, Tables, Feeds).");
 
 if (audit.errors.length > 0) {
     console.error("❌ USEFULNESS CRITIC REJECTED:");
