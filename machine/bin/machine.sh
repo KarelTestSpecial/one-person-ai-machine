@@ -35,6 +35,10 @@ case $COMMAND in
     echo "🌐 Vexillion: Running API Bridge Simulation..."
     node /home/kareltestspecial/new-agent/machine/bin/test-api.js
     ;;
+  "log-lead")
+    node /home/kareltestspecial/new-agent/machine/bin/watchtower-log.js
+    ;;
+
   "critique")
     PROJECT_DIR=${2:-$(pwd)}
     echo "🎯 Briefing Critic: Verifying Strategy Alignment..."

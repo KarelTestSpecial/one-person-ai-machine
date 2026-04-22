@@ -64,6 +64,16 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
           <LogOut size={20} />
           <span className="font-medium">Logout</span>
         </button>
+
+        <div className="mt-8 pt-6 border-t border-white/5">
+          <div className="flex items-center gap-3 px-4 py-3 bg-white/5 rounded-xl border border-white/5">
+            <div className="machine-heartbeat"></div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Machine Status</p>
+              <p className="text-[9px] text-emerald-400 font-mono">9-GATE AUDIT: ACTIVE</p>
+            </div>
+          </div>
+        </div>
       </div>
     </aside>
   );
