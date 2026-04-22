@@ -34,10 +34,14 @@ case $COMMAND in
     echo "🎯 Requirement Critic: Auditing client alignment..."
     node /home/kareltestspecial/new-agent/machine/bin/critic-requirement.js
     [ $? -ne 0 ] && exit 1
-    echo "🌐 Browser Critic: Auditing live rendering..."
-    node /home/kareltestspecial/new-agent/machine/bin/critic-browser.js $2
+    echo "⚖️ Legal Critic: Auditing branding safety..."
+    LEGAL_MODE=${3:-INTERNAL}
+    node /home/kareltestspecial/new-agent/machine/bin/critic-legal.js "$2" "$LEGAL_MODE"
     [ $? -ne 0 ] && exit 1
-    echo "💎 All Critics Approved. Build is Premium, Useful, Stable, Client-Ready & Render-Verified."
+    echo "🌐 Browser Critic: Auditing live rendering..."
+    node /home/kareltestspecial/new-agent/machine/bin/critic-browser.js "$2"
+    [ $? -ne 0 ] && exit 1
+    echo "💎 All Critics Approved. Build is Premium, Useful, Stable, Client-Ready & Brand-Safe."
     ;;
   *)
     echo "Usage: ./machine.sh {scan|build|distill|critique|clean}"

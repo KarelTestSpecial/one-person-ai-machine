@@ -12,8 +12,9 @@
 - **Link**: https://fiverr.com/setup-firebase-auth
 - **Pitch**: Hi! I noticed you need a Setup Firebase Authentication with Multi-factor. I have a pre-built, high-performance module for this which allows me to deliver in record time with industrial-grade security. Let's talk.
 
-### [Upwork] AI-Powered Content Management System
+### [Upwork] AI-Powered Content Management System (Vexillion AI)
 - **Budget**: $1200
-- **Match**: Medium (requires new component)
+- **Status**: IN PROGRESS (Branding Verified)
+- **Chosen Name**: Vexillion AI
 - **Link**: https://upwork.com/jobs/ai-cms
 - **Pitch**: Hi! I noticed you need a AI-Powered Content Management System. I have a pre-built, high-performance module for this which allows me to deliver in record time with industrial-grade security. Let's talk.
