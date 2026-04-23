@@ -1,5 +1,7 @@
 # Original Client Request: Vexillion AI Enterprise
 **Source**: Upwork / Strategic Freelance Lead
+**Source URL**: https://upwork.com/jobs/~vexillion-ai-enterprise-7721
+**Client**: Karel / One-Person Machine Enterprise
 **Date**: 2026-04-22
 
 ## Raw Description
